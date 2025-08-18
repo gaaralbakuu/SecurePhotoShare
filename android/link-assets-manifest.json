@@ -1,0 +1,25 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/EduNSWACTCursive-Bold.ttf",
+      "sha1": "7d53cfb40d263a9b22d29215bd4909cc8309f76d"
+    },
+    {
+      "path": "assets/fonts/EduNSWACTCursive-Medium.ttf",
+      "sha1": "c532e0116cb2a96491ebbd4f197927a061a3add3"
+    },
+    {
+      "path": "assets/fonts/EduNSWACTCursive-Regular.ttf",
+      "sha1": "dafa9960996eeef1907b07b7665ed6367dbcd0c6"
+    },
+    {
+      "path": "assets/fonts/EduNSWACTCursive-SemiBold.ttf",
+      "sha1": "606ee29b01bd6504fa595b8526bbede04d68c6c7"
+    },
+    {
+      "path": "assets/fonts/EduNSWACTCursive-VariableFont_wght.ttf",
+      "sha1": "1cbb5d93b7684610231744216570b4f4d3f01371"
+    }
+  ]
+}

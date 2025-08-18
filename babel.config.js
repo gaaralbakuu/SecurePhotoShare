@@ -1,0 +1,25 @@
+module.exports = {
+  presets: ["module:@react-native/babel-preset"],
+  plugins: [
+    [
+      "module-resolver",
+      {
+        alias: {
+          app: "./app",
+        },
+        root: ["."],
+        extensions: [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx",
+          ".android.js",
+          ".android.tsx",
+          ".ios.js",
+          ".ios.tsx",
+          ".json"
+        ]
+      },
+    ],
+  ],
+};
