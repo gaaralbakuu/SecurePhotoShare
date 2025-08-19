@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 12,
+    height: 60
   },
   left: { width: 60 },
   leftHidden: { width: 0, padding: 0 },

@@ -6,6 +6,8 @@ type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
   Photos: undefined;
+  // PhotoDetail receives the photos to upload and optional metadata
+  PhotoDetail: { photos: string[] } | undefined;
   TakePhoto: undefined;
   Dashboard: undefined;
   Readings: undefined;

@@ -10,6 +10,7 @@ import PhotoListScreen from 'app/screens/photos/photo-list-screen';
 import Dashboard from 'app/screens/dashboard/dashboard-screen';
 import ReadingsScreen from 'app/screens/readings/readings-screen';
 import TakePhotoScreen from 'app/screens/photos/take-photo-screen';
+import PhotoDetailScreen from 'app/screens/photos/photo-detail-screen';
 // Other Imports
 import { AuthContext, AuthContextType } from 'app/auth/auth-context';
 
@@ -45,15 +46,25 @@ const RootNavigation = () => {
               name="TakePhoto"
               component={TakePhotoScreen}
               options={{
-                header: () => (
-                  <SubHeader title={`Take Photo`} />
-                ),
+                header: () => <SubHeader title={`Take Photo`} />,
+              }}
+            />
+            <RootStack.Screen
+              name="PhotoDetail"
+              component={PhotoDetailScreen}
+              options={{
+                header: () => <SubHeader title={`Details`} />,
               }}
             />
             <RootStack.Screen
               name="Readings"
               component={ReadingsScreen}
               options={{ title: 'Readings' }}
+            />
+            <RootStack.Screen
+              name="Photos"
+              component={PhotoListScreen}
+              options={{ title: 'Photos' }}
             />
           </RootStack.Group>
         ) : (
@@ -72,15 +83,10 @@ const RootNavigation = () => {
               component={LoginScreen}
               options={{ headerShown: false }}
             /> */}
-            <RootStack.Screen
-              name="Photos"
-              component={PhotoListScreen}
-              options={{ title: 'Photos' }}
-            />
           </>
         )}
       </RootStack.Navigator>
-      <CustomFooter />
+      {isSignedIn() && <CustomFooter />}
     </NavigationContainer>
   );
 };

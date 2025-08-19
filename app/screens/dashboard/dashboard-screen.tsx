@@ -45,7 +45,7 @@ const Dashboard = () => {
           flexDirection: 'column',
           gap: 16,
           padding: 16,
-          justifyContent: 'space-around'
+          justifyContent: 'space-around',
         }}
       >
         <TouchableOpacity
@@ -57,15 +57,25 @@ const Dashboard = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 36,
-            maxHeight: 100
+            maxHeight: 100,
           }}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Text style={{ color: '#fff', textAlign: 'center', fontSize: 24, fontWeight: '300' }}>Take Photo</Text>
+            <Text
+              style={{
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: '300',
+              }}
+            >
+              Take Photo
+            </Text>
           </View>
           <Ionicons name="camera-outline" size={40} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={() => navigation.navigate('Photos')}
           style={{
             flex: 1,
             backgroundColor: '#000',
@@ -73,11 +83,20 @@ const Dashboard = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 36,
-            maxHeight: 100
+            maxHeight: 100,
           }}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Text style={{ color: '#fff', textAlign: 'center', fontSize: 24, fontWeight: '300' }}>Upload Photo</Text>
+            <Text
+              style={{
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: '300',
+              }}
+            >
+              Upload Photo
+            </Text>
           </View>
           <Ionicons name="image-outline" size={40} color="#fff" />
         </TouchableOpacity>
@@ -89,11 +108,20 @@ const Dashboard = () => {
             flexDirection: 'row',
             alignItems: 'center',
             paddingHorizontal: 36,
-            maxHeight: 100
+            maxHeight: 100,
           }}
         >
           <View style={{ flex: 1, justifyContent: 'center' }}>
-            <Text style={{ color: '#fff', textAlign: 'center', fontSize: 24, fontWeight: '300' }}>Review Uploads</Text>
+            <Text
+              style={{
+                color: '#fff',
+                textAlign: 'center',
+                fontSize: 24,
+                fontWeight: '300',
+              }}
+            >
+              Review Uploads
+            </Text>
           </View>
           <Ionicons name="cloud-upload-outline" size={40} color="#fff" />
         </TouchableOpacity>

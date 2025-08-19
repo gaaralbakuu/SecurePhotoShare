@@ -6,7 +6,7 @@ import { CameraRoll } from "@react-native-camera-roll/camera-roll";
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Photos'>;
 
-const PhotoListScreen: React.FC<Props> = ({ navigation }) => {
+const PhotoListScreen: React.FC<Props> = ({ navigation, route }) => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [neverAskAgain, setNeverAskAgain] = useState(false);
@@ -24,8 +24,8 @@ const PhotoListScreen: React.FC<Props> = ({ navigation }) => {
         }
 
         const res = await CameraRoll.getPhotos({ first: 50, assetType: 'Photos' });
-        const uris = res.edges.map((e: any) => e.node.image.uri);
-        setPhotos(uris);
+  const uris = res.edges.map((e: any) => e.node.image.uri);
+  setPhotos(uris);
       } catch (err: any) {
         setError(err.message ?? String(err));
       }

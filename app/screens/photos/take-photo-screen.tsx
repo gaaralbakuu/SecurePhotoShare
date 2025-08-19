@@ -24,6 +24,7 @@ const TakePhotoScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const cameraRef = useRef<Camera | null>(null);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
   const devices = useCameraDevices();
   // `useCameraDevices` can sometimes have different shapes depending on versions/types.
   // Be defensive: if it has a `back` property use it, otherwise fall back to first entry.
@@ -45,8 +46,8 @@ const TakePhotoScreen = () => {
   // Intercept navigation attempts (back button, navigate away)
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
-      // Only block navigation if a photo has been taken (unsaved changes)
-      if (!photoUri) return; // allow leaving when no photo
+      // Only block navigation if a photo has been taken or there are saved photos (unsaved changes)
+      if (!photoUri && photos.length === 0) return; // allow leaving when no photo
       // If we already showing confirm leave, allow the action
       if (showConfirmLeave) return;
 
@@ -58,7 +59,7 @@ const TakePhotoScreen = () => {
     });
 
     return unsubscribe;
-  }, [navigation, showConfirmLeave, photoUri]);
+  }, [navigation, showConfirmLeave, photoUri, photos]);
 
   const takePicture = async () => {
     if (!cameraRef.current) return;
@@ -71,21 +72,35 @@ const TakePhotoScreen = () => {
           ? photo.path
           : `file://${photo.path}`;
         setPhotoUri(uri);
+        setPhotos(p => [...p, uri]);
       }
     } catch (err) {
       console.warn('Failed to take picture', err);
     }
   };
 
-  const handleRetake = () => setPhotoUri(null);
-  const handleDone = () => {
-    if (photoUri) {
-      // show confirm dialog when there's a photo
-      setShowConfirmLeave(true);
-      pendingActionRef.current = null; // no pending navigation action
-    } else {
-      navigation.goBack();
+  const handleRetake = () => {
+    if (photos.length > 0) {
+      // remove last saved photo and reopen camera for a retake
+      setPhotos(p => p.slice(0, -1));
+      setPhotoUri(null);
+      setCameraReady(false);
+      return;
     }
+
+    // if there are no saved photos, just drop current preview and reopen camera
+    setPhotoUri(null);
+  };
+  // Keep current photo and continue to take another one
+  const handleKeepAndContinue = () => {
+    if (!photoUri) return;
+    // photo already saved in photos by takePicture; just clear preview and reopen camera
+    setPhotoUri(null);
+    setCameraReady(false);
+  };
+  const handleDone = () => {
+    // navigate to the PhotoDetail screen and pass the collected photos for upload
+    navigation.navigate('PhotoDetail', { photos });
   };
 
   return (
@@ -99,16 +114,15 @@ const TakePhotoScreen = () => {
             borderTopRightRadius: 16,
             flexDirection: 'column',
             gap: 16,
-            padding: 16,
             justifyContent: 'space-around',
             marginTop: 16,
           }}
         >
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, paddingHorizontal: 16, paddingTop: 16 }}>
             <Image source={{ uri: photoUri }} style={styles.previewImage} />
           </View>
           <View style={styles.previewActions}>
-            <TouchableOpacity onPress={handleRetake}>
+            <TouchableOpacity onPress={handleKeepAndContinue}>
               <Text style={styles.actionText}>
                 <Ionicons name="add-circle-outline" size={40} color="#fff" />
               </Text>
@@ -201,18 +215,31 @@ const TakePhotoScreen = () => {
       {showConfirmLeave && (
         <View style={styles.confirmOverlay}>
           <View style={styles.confirmBox}>
-            <Text style={styles.confirmTitle}>Are you sure?</Text>
-            <Text style={styles.confirmMessage}>Do you want to leave this page?</Text>
+            <View
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                width: '100%',
+                borderRadius: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+              }}
+            >
+              <Text style={styles.confirmMessage}>
+                Are you sure you want to leave?
+              </Text>
+            </View>
             <View style={styles.confirmActions}>
               <TouchableOpacity
-                style={styles.confirmButton}
+                style={styles.cancelButton}
                 onPress={() => {
                   // Cancel
                   setShowConfirmLeave(false);
                   pendingActionRef.current = null;
                 }}
               >
-                <Text style={styles.actionText}>Cancel</Text>
+                <Text style={styles.actionCancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.confirmButton}
@@ -227,7 +254,7 @@ const TakePhotoScreen = () => {
                   }
                 }}
               >
-                <Text style={styles.actionText}>Leave</Text>
+                <Text style={styles.actionText}>Yes</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -247,8 +274,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   captureButton: {
-    width: 56,
-    height: 56,
+    width: 40,
+    height: 40,
     borderRadius: 28,
     borderWidth: 4,
     borderColor: '#fff',
@@ -256,9 +283,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   innerCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: '#fff',
   },
   previewContainer: { flex: 1 },
@@ -275,6 +302,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   actionText: { color: '#fff', fontSize: 18 },
+  actionCancelText: { color: '#000', fontSize: 18 },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   hint: { color: '#fff', fontSize: 18, marginBottom: 12 },
   openButton: {
@@ -304,6 +332,7 @@ const styles = StyleSheet.create({
   previewActions: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    paddingBottom: 16,
   },
   smallButton: {
     backgroundColor: '#000',
@@ -324,15 +353,45 @@ const styles = StyleSheet.create({
   confirmBox: {
     width: '100%',
     maxWidth: 420,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderRadius: 30,
     padding: 20,
     alignItems: 'center',
+    flexDirection: 'column',
+    gap: 16,
   },
-  confirmTitle: { fontSize: 18, fontWeight: '600', marginBottom: 8, color: '#000' },
-  confirmMessage: { fontSize: 14, color: '#333', marginBottom: 16, textAlign: 'center' },
-  confirmActions: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
-  confirmButton: { flex: 1, marginHorizontal: 8, paddingVertical: 12, alignItems: 'center', borderRadius: 8, backgroundColor: '#000' },
+  confirmTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 8,
+    color: '#000',
+  },
+  confirmMessage: {
+    fontSize: 18,
+    color: '#000',
+    textAlign: 'left',
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  cancelButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 30,
+    color: '#000',
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+  confirmButton: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderRadius: 30,
+    backgroundColor: '#004bc2',
+  },
 });
 
 export default TakePhotoScreen;
